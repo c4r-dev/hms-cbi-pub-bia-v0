@@ -1,55 +1,12 @@
 "use client"; // Required for client components
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "../styles/globals.css"; // Ensure global styles are loaded
-import { Line } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend } from "chart.js";
-
-// ✅ Register Chart.js components (Fix for the "point" error)
-ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);
 
 export default function Home() {
   const [effectSize, setEffectSize] = useState(0); // Mean (μ)
   const [sampleSize, setSampleSize] = useState(250); // Dynamic sample size
-  const [biasAmount, setBiasAmount] = useState(0.5); // ✅ Default Bias Amount = 0.5
-  const [chartData, setChartData] = useState(null);
-
-  useEffect(() => {
-    generateGaussianData();
-  }, [effectSize, sampleSize, biasAmount]);
-
-  function generateGaussianData() {
-    let xValues = [];
-    let yValues = [];
-
-    const mean = effectSize;
-    const stdDev = biasAmount;
-    const minX = mean - 4 * stdDev; // Dynamically adjust range
-    const maxX = mean + 4 * stdDev;
-    const step = (maxX - minX) / sampleSize; // Adjust number of points dynamically
-
-    for (let x = minX; x <= maxX; x += step) {
-      const exponent = -((x - mean) ** 2) / (2 * stdDev ** 2);
-      const y = (1 / (stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(exponent);
-      xValues.push(x.toFixed(2));
-      yValues.push(y);
-    }
-
-    setChartData({
-      labels: xValues,
-      datasets: [
-        {
-          label: "Gaussian Distribution",
-          data: yValues,
-          borderColor: "rgba(75, 192, 192, 1)",
-          backgroundColor: "rgba(75, 192, 192, 0.2)",
-          borderWidth: 2,
-          tension: 0.4, // Smooth curve
-          pointRadius: 0, // Hide points
-        },
-      ],
-    });
-  }
+  const [biasAmount, setBiasAmount] = useState(0.5); // Default Bias Amount = 0.5
 
   return (
     <div className="container">
@@ -108,7 +65,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Third Slider: Bias Amount (✅ Default Value = 0.5) */}
+      {/* Third Slider: Bias Amount */}
       <div className="sliderContainer">
         <label htmlFor="biasAmountSlider" className="sliderLabel">
           Bias Amount: <strong>{biasAmount.toFixed(2)}</strong>
@@ -127,11 +84,6 @@ export default function Home() {
           />
           <span className="sliderMax">1</span>
         </div>
-      </div>
-
-      {/* Gaussian Distribution Line Plot */}
-      <div className="chartContainer">
-        {chartData && <Line data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />}
       </div>
     </div>
   );
