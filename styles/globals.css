@@ -1,3 +1,5 @@
+/* ===== GLOBAL STYLES ===== */
+
 /* Apply text-wrap: balance to all elements */
 * {
   text-wrap: balance;
@@ -21,7 +23,8 @@ body {
   text-align: center;
 }
 
-/* Header */
+/* ===== HEADER STYLES ===== */
+
 .header {
   display: flex;
   align-items: center;
@@ -61,7 +64,79 @@ body {
   text-align: center;
 }
 
-/* Responsive Adjustments */
+/* ===== SLIDER STYLES ===== */
+
+.sliderContainer {
+  margin: 40px auto;
+  padding: 10px;
+  width: 80%;
+  max-width: 500px;
+  text-align: center;
+}
+
+/* Slider Label */
+.sliderLabel {
+  display: block;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+/* Slider Wrapper: Aligns Labels (-3 & 3) with Slider */
+.sliderWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Left & Right Labels (-3 & 3) */
+.sliderMin, .sliderMax {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  width: 30px;
+  text-align: center;
+}
+
+/* Slider Input */
+.slider {
+  flex-grow: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #ff6b6b, #6b7bff);
+  outline: none;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+/* Custom Thumb (Chrome, Safari, Edge, Opera) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #333;
+  cursor: pointer;
+}
+
+/* Custom Thumb (Firefox) */
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #333;
+  cursor: pointer;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
 @media screen and (max-width: 768px) {
   .header {
     flex-direction: column;
@@ -84,5 +159,18 @@ body {
     font-size: 1rem;
     padding: 0 5%;
     margin-top: 100px;
+  }
+
+  .sliderContainer {
+    width: 90%;
+  }
+
+  .sliderLabel {
+    font-size: 1rem;
+  }
+
+  .sliderMin, .sliderMax {
+    font-size: 1rem;
+    width: 25px;
   }
 }
