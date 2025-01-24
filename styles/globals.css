@@ -1,0 +1,53 @@
+/* Apply text-wrap: balance to all elements */
+* {
+  text-wrap: balance;
+}
+
+/* Global Font Setting */
+body {
+  font-family: 'GeneralSans', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* General Container */
+.container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  padding: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  z-index: 1000;
+}
+
+.favicon {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+  transform: rotate(90deg);
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: left;
+}
+
+/* Title Below Header */
+.centeredTitle {
+  font-size: 20px;
+  margin: 80px 0 20px;
+}
