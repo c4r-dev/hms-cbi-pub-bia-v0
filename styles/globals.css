@@ -178,7 +178,7 @@ body {
 /* Chart Container */
 .chartContainer {
   width: 60%; /* Reduce the width */
-  max-width: 500px; /* Limit max width */
-  height: 300px; /* Reduce height */
+  max-width: 700px; /* Limit max width */
+  height: 420px; /* Reduce height */
   margin: 20px auto; /* Center the chart */
 }
