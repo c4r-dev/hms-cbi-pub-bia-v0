@@ -7,8 +7,8 @@ import "../styles/globals.css"; // Ensure global styles are loaded
 Chart.register(...registerables); // Register Chart.js modules
 
 export default function Page() {
-  const [sampleSize, setSampleSize] = useState(5); // Default Sample Size = 5
-  const [biasAmount, setBiasAmount] = useState(0); // Default Bias Amount = 0
+  const [sampleSize, setSampleSize] = useState(5);
+  const [biasAmount, setBiasAmount] = useState(0);
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
 
@@ -81,11 +81,12 @@ export default function Page() {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false, // Allows custom sizing
         plugins: {
           title: {
             display: true,
             text: "Probability of Statistical Significance",
-            font: { size: 18, weight: "bold" },
+            font: { size: 16, weight: "bold" },
             padding: { top: 10, bottom: 10 },
           },
           legend: { display: true },
@@ -171,8 +172,10 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Chart */}
-      <canvas ref={chartRef} />
+      {/* Chart Container */}
+      <div className="chartContainer">
+        <canvas ref={chartRef} />
+      </div>
     </div>
   );
 }
