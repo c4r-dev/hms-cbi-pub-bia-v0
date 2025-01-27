@@ -3,10 +3,9 @@
 import { useState } from "react";
 import "../styles/globals.css"; // Ensure global styles are loaded
 
-export default function Home() {
-  const [effectSize, setEffectSize] = useState(0); // Mean (μ)
-  const [sampleSize, setSampleSize] = useState(250); // Dynamic sample size
-  const [biasAmount, setBiasAmount] = useState(0.5); // Default Bias Amount = 0.5
+export default function Page() {
+  const [sampleSize, setSampleSize] = useState(5); // Default Sample Size = 5
+  const [biasAmount, setBiasAmount] = useState(0); // Default Bias Amount = 0
 
   return (
     <div className="container">
@@ -23,28 +22,7 @@ export default function Home() {
         By adjusting the amount of bias and the sample size, students will explore how these factors distort the relationship between true effect size and the probability of statistical significance.
       </h2>
 
-      {/* First Slider: Effect Size with Bias */}
-      <div className="sliderContainer">
-        <label htmlFor="effectSizeSlider" className="sliderLabel">
-          Effect Size with Bias: <strong>{effectSize.toFixed(2)}</strong>
-        </label>
-        <div className="sliderWrapper">
-          <span className="sliderMin">-3</span>
-          <input
-            type="range"
-            id="effectSizeSlider"
-            min="-3"
-            max="3"
-            step="0.1"
-            value={effectSize}
-            onChange={(e) => setEffectSize(parseFloat(e.target.value))}
-            className="slider"
-          />
-          <span className="sliderMax">3</span>
-        </div>
-      </div>
-
-      {/* Second Slider: Sample Size */}
+      {/* Sample Size Slider */}
       <div className="sliderContainer">
         <label htmlFor="sampleSizeSlider" className="sliderLabel">
           Sample Size: <strong>{sampleSize}</strong>
@@ -65,7 +43,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Third Slider: Bias Amount */}
+      {/* Bias Amount Slider */}
       <div className="sliderContainer">
         <label htmlFor="biasAmountSlider" className="sliderLabel">
           Bias Amount: <strong>{biasAmount.toFixed(2)}</strong>
