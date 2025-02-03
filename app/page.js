@@ -1,8 +1,8 @@
 "use client"; // Required for client components
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter
 import { Chart, registerables } from "chart.js";
-import "../styles/globals.css"; // Ensure global styles are loaded
 
 Chart.register(...registerables); // Register Chart.js modules
 
@@ -11,6 +11,7 @@ export default function Page() {
   const [biasAmount, setBiasAmount] = useState(0);
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
+  const router = useRouter(); // Initialize router
 
   const calculateProbability = (d, b, n, criticalValue) => {
     const iterations = 1000;
@@ -81,7 +82,7 @@ export default function Page() {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false, // Allows custom sizing
+        maintainAspectRatio: false,
         plugins: {
           title: {
             display: true,
@@ -117,7 +118,9 @@ export default function Page() {
     <div className="container">
       {/* Header Section */}
       <div className="header">
-        <img src="/favicon.ico" alt="Favicon" className="favicon" />
+        <button onClick={() => router.push("/")} className="favicon-button">
+          <img src="/favicon.ico" alt="Favicon" className="favicon" />
+        </button>
         <h1 className="title">
           Understanding the Impact of Bias in Assessment on Published Results
         </h1>

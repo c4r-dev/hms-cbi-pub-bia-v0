@@ -1,5 +1,29 @@
 /* ===== GLOBAL STYLES ===== */
 
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans/GeneralSans-Regular.woff2') format('woff2'),
+       url('/fonts/GeneralSans/GeneralSans-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans/GeneralSans-Bold.woff2') format('woff2'),
+       url('/fonts/GeneralSans/GeneralSans-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans/GeneralSans-Italic.woff2') format('woff2'),
+       url('/fonts/GeneralSans/GeneralSans-Italic.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+}
+
 /* Apply text-wrap: balance to all elements */
 * {
   text-wrap: balance;
@@ -10,7 +34,7 @@
 
 /* Global Font Setting */
 body {
-  font-family: 'GeneralSans', sans-serif;
+  font-family: 'General Sans', Courier, sans-serif;
   background-color: #f9f9f9;
   padding: 20px;
 }
@@ -28,7 +52,7 @@ body {
 .header {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: left;
   padding: 10px;
   position: fixed;
   top: 0;
@@ -40,6 +64,14 @@ body {
 }
 
 /* Favicon */
+
+.favicon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
 .favicon {
   width: 40px;
   height: 40px;
