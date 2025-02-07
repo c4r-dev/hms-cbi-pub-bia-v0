@@ -95,6 +95,11 @@ export default function Page() {
         scales: {
           x: {
             title: { display: true, text: "True Effect Size (d)" },
+            ticks: {
+              callback: function (value) {
+                return value.toFixed(2); // Ensures two decimal places
+              }
+            }
           },
           y: {
             title: { display: true, text: "Probability" },
@@ -122,15 +127,13 @@ export default function Page() {
           <img src="/favicon.ico" alt="Favicon" className="favicon" />
         </button>
         <h1 className="title">
-          Understanding the Impact of Bias in Assessment on Published Results
+          Explore the impact of bias.
         </h1>
       </div>
 
       {/* Centered Title */}
       <h2 className="centeredTitle">
-        By adjusting the amount of bias and the sample size, students will
-        explore how these factors distort the relationship between true effect
-        size and the probability of statistical significance.
+      Adjust the amount of bias and the sample size to see how these factors distort the relationship between true effect size and the probability of statistical significance.
       </h2>
 
       {/* Sample Size Slider */}
