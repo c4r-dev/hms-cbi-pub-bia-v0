@@ -126,7 +126,7 @@ body {
 .sliderMin, .sliderMax {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #333;
+  color: #6f00ff;
   width: 30px;
   text-align: center;
 }
@@ -138,7 +138,7 @@ body {
   appearance: none;
   height: 8px;
   border-radius: 5px;
-  background: linear-gradient(90deg, #ff6b6b, #6b7bff);
+  background: linear-gradient(90deg, #020202, #6f00ff);
   outline: none;
   opacity: 0.9;
   transition: opacity 0.2s;
@@ -155,7 +155,7 @@ body {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #333;
+  background: #6f00ff;
   cursor: pointer;
 }
 
@@ -164,7 +164,7 @@ body {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #333;
+  background: #6f00ff;
   cursor: pointer;
 }
 
