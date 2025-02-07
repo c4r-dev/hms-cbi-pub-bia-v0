@@ -97,7 +97,7 @@ export default function Page() {
             title: { display: true, text: "True Effect Size (d)" },
             ticks: {
               callback: function (value) {
-                return value.toFixed(2); // Ensures two decimal places
+                return value.toFixed(0); // Ensures two decimal places
               }
             }
           },
