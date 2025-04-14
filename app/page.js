@@ -1,10 +1,25 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import jStat from "jstat";
 
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
+
+function calculateNoncentralTCDF(x, df, ncp) {
+  // When the ncp is very small, it's close to central t-distribution
+  if (Math.abs(ncp) < 1e-10) {
+    return jStat.studentt.cdf(x, df);
+  }
+
+  // Approximation for non-central t-distribution
+  // This uses a normal approximation which is reasonable for df > 10
+  // For smaller df, this is a rough approximation
+
+  const z = (x - ncp) / Math.sqrt(1 + (x * x) / (2 * df));
+  return jStat.normal.cdf(z, 0, 1);
+}
 
 export default function Page() {
   const [sampleSize, setSampleSize] = useState(5);
@@ -12,40 +27,39 @@ export default function Page() {
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
 
-  const calculateProbability = (d, b, n, criticalValue) => {
-    const iterations = 1000;
-    let significantCount = 0;
+  const calculateProbability = (d, b, n, alpha = 0.05) => {
+    d = d + b;
 
-    for (let i = 0; i < iterations; i++) {
-      const sampleMean = d + b + Math.random() * Math.sqrt(1 / n);
-      const tStatistic = sampleMean / (1 / Math.sqrt(n));
+    // Critical t-value for the given alpha (one-sided test)
+    const tCritical = jStat.studentt.inv(1 - alpha, n - 1);
 
-      if (tStatistic > criticalValue) {
-        significantCount++;
-      }
-    }
 
-    return significantCount / iterations;
-  };
+    // Non-centrality parameter
+    const ncp = d * Math.sqrt(n);
+
+    // Compute power (two-sided test)
+    const powerLower = calculateNoncentralTCDF(-tCritical, n - 1, ncp);
+    const powerUpper = 1 - calculateNoncentralTCDF(tCritical, n - 1, ncp);
+
+    return powerUpper;
+  }
 
   const updateChart = () => {
     if (!chartInstanceRef.current) return;
 
-    const effectSizes = Array.from({ length: 21 }, (_, i) => -1 + i * 0.1);
+    const effectSizes = Array.from({ length: 401 }, (_, i) => -2 + i * 0.01);
+
     const probabilities05 = effectSizes.map((d) =>
-      calculateProbability(d, biasAmount, sampleSize, 1.645)
+      calculateProbability(d, 0, sampleSize)
     );
     const probabilities01 = effectSizes.map((d) =>
-      calculateProbability(d, biasAmount, sampleSize, 2.33)
-    );
-    const probabilities001 = effectSizes.map((d) =>
-      calculateProbability(d, biasAmount, sampleSize, 3.09)
+      calculateProbability(d, biasAmount, sampleSize)
     );
 
     chartInstanceRef.current.data.labels = effectSizes;
     chartInstanceRef.current.data.datasets[0].data = probabilities05;
     chartInstanceRef.current.data.datasets[1].data = probabilities01;
-    chartInstanceRef.current.data.datasets[2].data = probabilities001;
+    // chartInstanceRef.current.data.datasets[2].data = probabilities001;
     chartInstanceRef.current.update();
   };
 
@@ -57,23 +71,16 @@ export default function Page() {
         labels: [],
         datasets: [
           {
-            label: "p < 0.05",
+            label: "Unbiased",
             data: [],
             borderColor: "#00C802",
             borderWidth: 2,
             fill: false,
           },
           {
-            label: "p < 0.01",
+            label: "Biased",
             data: [],
             borderColor: "#FF5A00",
-            borderWidth: 2,
-            fill: false,
-          },
-          {
-            label: "p < 0.001",
-            data: [],
-            borderColor: "#00a3ff",
             borderWidth: 2,
             fill: false,
           },
@@ -83,33 +90,33 @@ export default function Page() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: {
-            display: true,
-            text: "Probability of Statistical Significance",
-            font: { size: 16, weight: "bold" },
-            padding: { top: 10, bottom: 10 },
-          },
+          // title: {
+          //   display: true,
+          //   text: "Probability of Statistical Significance",
+          //   font: { size: 16, weight: "bold" },
+          //   padding: { top: 10, bottom: 10 },
+          // },
           legend: { display: true },
         },
         scales: {
           x: {
             title: { display: true, text: "True Effect Size (d)" },
             ticks: {
-                // callback: function(value, index, values) {
-                  callback: function(index) {
-                    // Display ticks for -1, -0.5, 0, 0.5, 1
-                    const tickValue = -1 + index * 0.1; // Calculate the actual value based on index
-                    if ([-1, -0.5, 0, 0.5, 1].includes(parseFloat(tickValue.toFixed(1)))) {
-                      return tickValue.toFixed(1);
-                    }
-                    return ''; // Return empty string for other ticks
-                },
-                stepSize: 0.1, // Ensure all potential ticks are considered
-                autoSkip: false // Prevent automatic skipping of labels
+              // callback: function(value, index, values) {
+              callback: function (index) {
+                // Display ticks for -1, -0.5, 0, 0.5, 1
+                const tickValue = -1 + index * 0.1; // Calculate the actual value based on index
+                if ([-1, -0.5, 0, 0.5, 1].includes(parseFloat(tickValue.toFixed(1)))) {
+                  return tickValue.toFixed(1);
+                }
+                return ''; // Return empty string for other ticks
+              },
+              stepSize: 0.1, // Ensure all potential ticks are considered
+              autoSkip: false // Prevent automatic skipping of labels
             }
           },
           y: {
-            title: { display: true, text: "Probability" },
+            title: { display: true, text: "Probability of Detecting an Effect" },
             min: 0,
             max: 1,
           },
@@ -142,7 +149,7 @@ export default function Page() {
 
       {/* Centered Title */}
       <h2 className="centeredTitle">
-      Adjust the amount of bias and the sample size to see how these factors distort the relationship between true effect size and the probability of statistical significance.
+        Explore how sample size and bias influence discovery of effects.
       </h2>
 
       {/* Sample Size Slider */}
@@ -156,13 +163,13 @@ export default function Page() {
             type="range"
             id="sampleSizeSlider"
             min="5"
-            max="500"
-            step="5"
+            max="100"
+            step="1"
             value={sampleSize}
             onChange={(e) => setSampleSize(parseInt(e.target.value))}
             className="slider"
           />
-          <span className="sliderMax">500</span>
+          <span className="sliderMax">100</span>
         </div>
       </div>
 
