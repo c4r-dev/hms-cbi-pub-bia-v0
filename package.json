@@ -12,7 +12,6 @@
     "chart.js": "^4.4.7",
     "chartjs-plugin-annotation": "^3.1.0",
     "jstat": "^1.9.6",
-    "jStat": "^1.8.6",
     "next": "15.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

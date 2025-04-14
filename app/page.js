@@ -2,11 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import jStat from "jstat";
-
 import { Chart, registerables } from "chart.js";
+
 // 1. Import the annotation plugin
 import annotationPlugin from 'chartjs-plugin-annotation';
-
 // 2. Register the annotation plugin along with other registerables
 Chart.register(...registerables, annotationPlugin);
 
@@ -16,17 +15,12 @@ function calculateNoncentralTCDF(x, df, ncp) {
     return jStat.studentt.cdf(x, df);
   }
 
-  // Approximation for non-central t-distribution
-  // This uses a normal approximation which is reasonable for df > 10
-  // For smaller df, this is a rough approximation
-
   const z = (x - ncp) / Math.sqrt(1 + (x * x) / (2 * df));
   return jStat.normal.cdf(z, 0, 1);
 }
 
 export default function Page() {
   const [sampleSize, setSampleSize] = useState(5);
-  // Default Bias Amount set back to 0
   const [biasAmount, setBiasAmount] = useState(0);
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
@@ -37,12 +31,10 @@ export default function Page() {
     // Critical t-value for the given alpha (one-sided test)
     const tCritical = jStat.studentt.inv(1 - alpha, n - 1);
 
-
     // Non-centrality parameter
     const ncp = d * Math.sqrt(n);
 
-    // Compute power (two-sided test)
-    const powerLower = calculateNoncentralTCDF(-tCritical, n - 1, ncp);
+    // Compute power (one-sided test)
     const powerUpper = 1 - calculateNoncentralTCDF(tCritical, n - 1, ncp);
 
     return powerUpper;
@@ -63,7 +55,6 @@ export default function Page() {
     chartInstanceRef.current.data.labels = effectSizes;
     chartInstanceRef.current.data.datasets[0].data = probabilities05;
     chartInstanceRef.current.data.datasets[1].data = probabilities01;
-    // chartInstanceRef.current.data.datasets[2].data = probabilities001;
     chartInstanceRef.current.update();
   };
 
