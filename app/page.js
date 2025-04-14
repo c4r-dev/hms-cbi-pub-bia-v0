@@ -119,6 +119,7 @@ export default function Page() {
     updateChart();
   }, [biasAmount, sampleSize]);
 
+  
   return (
     <div className="container">
       {/* Header Section */}
