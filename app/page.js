@@ -44,7 +44,6 @@ export default function Page() {
     if (!chartInstanceRef.current) return;
 
     const effectSizes = Array.from({ length: 401 }, (_, i) => -2 + i * 0.01);
-
     const probabilities05 = effectSizes.map((d) =>
       calculateProbability(d, 0, sampleSize)
     );
@@ -52,68 +51,123 @@ export default function Page() {
       calculateProbability(d, biasAmount, sampleSize)
     );
 
-    chartInstanceRef.current.data.labels = effectSizes;
-    chartInstanceRef.current.data.datasets[0].data = probabilities05;
-    chartInstanceRef.current.data.datasets[1].data = probabilities01;
-    chartInstanceRef.current.update();
+    const data05 = effectSizes.map((val, index) => ({ x: val, y: probabilities05[index] }));
+    const data01 = effectSizes.map((val, index) => ({ x: val, y: probabilities01[index] }));
+
+    chartInstanceRef.current.data.datasets[0].data = data05; // Unbiased
+    chartInstanceRef.current.data.datasets[1].data = data01; // Biased
+
+    chartInstanceRef.current.update('none');
   };
 
   useEffect(() => {
     const ctx = chartRef.current.getContext("2d");
+    const darkerPinkFill = 'rgba(255, 105, 180, 0.4)'; // Semi-transparent hot pink
+    const unbiasedColor = "#00C802"; // Green
+    const biasedColor = "#FF5A00"; // Red
+
     chartInstanceRef.current = new Chart(ctx, {
       type: "line",
       data: {
-        labels: [], // Will be populated by updateChart
         datasets: [
+          // Dataset 0: Unbiased Line (Green)
           {
             label: "Unbiased",
-            data: [], // Will be populated by updateChart
-            borderColor: "#00C802",
-            borderWidth: 6, // Changed from 2 to 6
+            data: [],
+            borderColor: unbiasedColor, // Use variable
+            borderWidth: 6,
             fill: false,
-            pointRadius: 0, // Hide points for cleaner line
-            tension: 0.1 // Slight tension for smoother curves
+            pointRadius: 0,
+            tension: 0.1,
           },
+          // Dataset 1: Biased Line (Red) - CONFIGURED FOR CONDITIONAL FILL
           {
             label: "Biased",
-            data: [], // Will be populated by updateChart
-            borderColor: "#FF5A00",
-            borderWidth: 6, // Changed from 2 to 6
-            fill: false,
-            pointRadius: 0, // Hide points for cleaner line
-            tension: 0.1 // Slight tension for smoother curves
+            data: [],
+            borderColor: biasedColor, // Use variable
+            borderWidth: 6,
+            pointRadius: 0,
+            tension: 0.1,
+            fill: 0, // Fill towards dataset 0
+            segment: {
+              backgroundColor: ctx => ctx.p0.parsed.x < 0 ? darkerPinkFill : undefined,
+            }
           },
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        parsing: false,
         plugins: {
-          legend: { display: true },
-          // 3. Configure the annotation plugin
+          legend: {
+            display: true,
+            labels: {
+              // Use custom function to generate legend items
+              generateLabels: function(chart) {
+                // Get default labels
+                const originalLabels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+
+                // --- MODIFICATION START: Apply styles to ALL labels ---
+                originalLabels.forEach((label, index) => {
+                  // Set black border for default items
+                  label.strokeStyle = 'black';
+                  label.lineWidth = 1;
+
+                  // Ensure fillStyle is correct (defaults usually use borderColor)
+                  if (index === 0) { // Unbiased
+                    label.fillStyle = unbiasedColor;
+                  } else if (index === 1) { // Biased
+                    label.fillStyle = biasedColor;
+                  }
+                });
+                // --- MODIFICATION END ---
+
+
+                // Determine default font color
+                let defaultFontColor = '#666';
+                if (originalLabels.length > 0 && originalLabels[0].fontColor) {
+                  defaultFontColor = originalLabels[0].fontColor;
+                }
+
+                // Create the custom "False Positives" legend item
+                const falsePositiveLabel = {
+                  text: 'False Positives',
+                  fillStyle: darkerPinkFill, // Swatch color = darker pink
+                  strokeStyle: 'black',      // Border color = black
+                  lineWidth: 1,            // Border width = 1px
+                  fontColor: defaultFontColor, // Match text color
+                  hidden: false,
+                  datasetIndex: -1
+                };
+
+                // Insert the custom label after 'Biased'
+                originalLabels.splice(2, 0, falsePositiveLabel);
+
+                return originalLabels;
+              }
+            }
+          },
           annotation: {
             annotations: {
               line1: {
                 type: 'line',
-                xScaleID: 'x', // Use the ID of your x-axis scale
-                xMin: 0,       // Start x value
-                xMax: 0,       // End x value (same as xMin for vertical line)
-                borderColor: 'black', // Line color
-                borderWidth: 3,      // Changed from 1 to 3
+                scaleID: 'x',
+                value: 0,
+                borderColor: 'black',
+                borderWidth: 3,
               }
             }
           }
         },
         scales: {
           x: {
-            // Make sure this ID matches xScaleID in annotation
-            // The default ID is 'x', so this should work unless changed
-            type: 'linear', // Ensure x-axis is treated as linear for positioning
+            type: 'linear',
             title: { display: true, text: "True Effect Size (d)" },
-            min: -2, // Set explicit min/max if needed for annotation positioning
+            min: -2,
             max: 2,
             ticks: {
-              stepSize: 0.5 // Adjust stepSize for desired tick marks
+              stepSize: 0.5
             }
           },
           y: {
@@ -122,23 +176,23 @@ export default function Page() {
             max: 1,
           },
         },
-        // Optional: improve performance for large datasets
-        // animation: false,
-        // parsing: false,
       },
     });
 
-    // Initial chart update
     updateChart();
 
     return () => {
-      chartInstanceRef.current.destroy();
+      if (chartInstanceRef.current) {
+          chartInstanceRef.current.destroy();
+          chartInstanceRef.current = null;
+      }
     };
-  }, []); // Rerun effect only on mount/unmount
+  }, []);
 
-  // Update chart only when relevant state changes
   useEffect(() => {
-    updateChart();
+    if (chartInstanceRef.current) {
+        updateChart();
+    }
   }, [biasAmount, sampleSize]);
 
 
@@ -146,7 +200,6 @@ export default function Page() {
     <div className="container">
       {/* Header Section */}
       <div className="header">
-        {/* Changed onClick handler */}
         <button onClick={() => window.location.reload()} className="favicon-button">
           <img src="/favicon.ico" alt="Favicon" className="favicon" />
         </button>
