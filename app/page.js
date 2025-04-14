@@ -1,17 +1,16 @@
-"use client"; // Required for client components
+"use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter
+
 import { Chart, registerables } from "chart.js";
 
-Chart.register(...registerables); // Register Chart.js modules
+Chart.register(...registerables);
 
 export default function Page() {
   const [sampleSize, setSampleSize] = useState(5);
   const [biasAmount, setBiasAmount] = useState(0);
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
-  const router = useRouter(); // Initialize router
 
   const calculateProbability = (d, b, n, criticalValue) => {
     const iterations = 1000;
@@ -96,9 +95,17 @@ export default function Page() {
           x: {
             title: { display: true, text: "True Effect Size (d)" },
             ticks: {
-              callback: function (value) {
-                return value.toFixed(0); // Ensures two decimal places
-              }
+                // callback: function(value, index, values) {
+                  callback: function(index) {
+                    // Display ticks for -1, -0.5, 0, 0.5, 1
+                    const tickValue = -1 + index * 0.1; // Calculate the actual value based on index
+                    if ([-1, -0.5, 0, 0.5, 1].includes(parseFloat(tickValue.toFixed(1)))) {
+                      return tickValue.toFixed(1);
+                    }
+                    return ''; // Return empty string for other ticks
+                },
+                stepSize: 0.1, // Ensure all potential ticks are considered
+                autoSkip: false // Prevent automatic skipping of labels
             }
           },
           y: {
@@ -119,12 +126,13 @@ export default function Page() {
     updateChart();
   }, [biasAmount, sampleSize]);
 
-  
+
   return (
     <div className="container">
       {/* Header Section */}
       <div className="header">
-        <button onClick={() => router.push("/")} className="favicon-button">
+        {/* Changed onClick handler */}
+        <button onClick={() => window.location.reload()} className="favicon-button">
           <img src="/favicon.ico" alt="Favicon" className="favicon" />
         </button>
         <h1 className="title">
