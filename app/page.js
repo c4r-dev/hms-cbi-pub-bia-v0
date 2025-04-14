@@ -4,8 +4,11 @@ import { useState, useEffect, useRef } from "react";
 import jStat from "jstat";
 
 import { Chart, registerables } from "chart.js";
+// 1. Import the annotation plugin
+import annotationPlugin from 'chartjs-plugin-annotation';
 
-Chart.register(...registerables);
+// 2. Register the annotation plugin along with other registerables
+Chart.register(...registerables, annotationPlugin);
 
 function calculateNoncentralTCDF(x, df, ncp) {
   // When the ncp is very small, it's close to central t-distribution
@@ -23,6 +26,7 @@ function calculateNoncentralTCDF(x, df, ncp) {
 
 export default function Page() {
   const [sampleSize, setSampleSize] = useState(5);
+  // Default Bias Amount set back to 0
   const [biasAmount, setBiasAmount] = useState(0);
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
@@ -68,21 +72,25 @@ export default function Page() {
     chartInstanceRef.current = new Chart(ctx, {
       type: "line",
       data: {
-        labels: [],
+        labels: [], // Will be populated by updateChart
         datasets: [
           {
             label: "Unbiased",
-            data: [],
+            data: [], // Will be populated by updateChart
             borderColor: "#00C802",
-            borderWidth: 2,
+            borderWidth: 6, // Changed from 2 to 6
             fill: false,
+            pointRadius: 0, // Hide points for cleaner line
+            tension: 0.1 // Slight tension for smoother curves
           },
           {
             label: "Biased",
-            data: [],
+            data: [], // Will be populated by updateChart
             borderColor: "#FF5A00",
-            borderWidth: 2,
+            borderWidth: 6, // Changed from 2 to 6
             fill: false,
+            pointRadius: 0, // Hide points for cleaner line
+            tension: 0.1 // Slight tension for smoother curves
           },
         ],
       },
@@ -90,29 +98,31 @@ export default function Page() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          // title: {
-          //   display: true,
-          //   text: "Probability of Statistical Significance",
-          //   font: { size: 16, weight: "bold" },
-          //   padding: { top: 10, bottom: 10 },
-          // },
           legend: { display: true },
+          // 3. Configure the annotation plugin
+          annotation: {
+            annotations: {
+              line1: {
+                type: 'line',
+                xScaleID: 'x', // Use the ID of your x-axis scale
+                xMin: 0,       // Start x value
+                xMax: 0,       // End x value (same as xMin for vertical line)
+                borderColor: 'black', // Line color
+                borderWidth: 3,      // Changed from 1 to 3
+              }
+            }
+          }
         },
         scales: {
           x: {
+            // Make sure this ID matches xScaleID in annotation
+            // The default ID is 'x', so this should work unless changed
+            type: 'linear', // Ensure x-axis is treated as linear for positioning
             title: { display: true, text: "True Effect Size (d)" },
+            min: -2, // Set explicit min/max if needed for annotation positioning
+            max: 2,
             ticks: {
-              // callback: function(value, index, values) {
-              callback: function (index) {
-                // Display ticks for -1, -0.5, 0, 0.5, 1
-                const tickValue = -1 + index * 0.1; // Calculate the actual value based on index
-                if ([-1, -0.5, 0, 0.5, 1].includes(parseFloat(tickValue.toFixed(1)))) {
-                  return tickValue.toFixed(1);
-                }
-                return ''; // Return empty string for other ticks
-              },
-              stepSize: 0.1, // Ensure all potential ticks are considered
-              autoSkip: false // Prevent automatic skipping of labels
+              stepSize: 0.5 // Adjust stepSize for desired tick marks
             }
           },
           y: {
@@ -121,14 +131,21 @@ export default function Page() {
             max: 1,
           },
         },
+        // Optional: improve performance for large datasets
+        // animation: false,
+        // parsing: false,
       },
     });
+
+    // Initial chart update
+    updateChart();
 
     return () => {
       chartInstanceRef.current.destroy();
     };
-  }, []);
+  }, []); // Rerun effect only on mount/unmount
 
+  // Update chart only when relevant state changes
   useEffect(() => {
     updateChart();
   }, [biasAmount, sampleSize]);
@@ -174,22 +191,37 @@ export default function Page() {
       </div>
 
       {/* Bias Amount Slider */}
-      <div className="sliderContainer">
+      <div className="sliderContainer biasSliderContainer">
         <label htmlFor="biasAmountSlider" className="sliderLabel">
           Bias Amount: <strong>{biasAmount.toFixed(2)}</strong>
         </label>
         <div className="sliderWrapper">
           <span className="sliderMin">0</span>
-          <input
-            type="range"
-            id="biasAmountSlider"
-            min="0"
-            max="1"
-            step="0.01"
-            value={biasAmount}
-            onChange={(e) => setBiasAmount(parseFloat(e.target.value))}
-            className="slider"
-          />
+          <div className="sliderInputWrapper">
+            <input
+              type="range"
+              id="biasAmountSlider"
+              min="0"
+              max="1"
+              step="0.01"
+              value={biasAmount}
+              onChange={(e) => setBiasAmount(parseFloat(e.target.value))}
+              className="slider"
+            />
+            <div className="sliderTicks">
+              <div className="tick" style={{ left: "28%" }}>
+                <span className="tickLabel">0.28</span>
+              </div>
+              <div className="tick" style={{ left: "91%" }}>
+                <span className="tickLabel">0.91</span>
+              </div>
+              <div
+                className="tickRangeLabel"
+              >
+                Estimated Range if you Fail to Mask
+              </div>
+            </div>
+          </div>
           <span className="sliderMax">1</span>
         </div>
       </div>
