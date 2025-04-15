@@ -266,7 +266,7 @@ export default function Page() {
               </div>
             </div>
           </div>
-          <span className="sliderMax">1</span>
+          <span className="sliderMax">1σ</span>
         </div>
       </div>
 
