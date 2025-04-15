@@ -278,13 +278,13 @@ body {
   }
   .biasSliderContainer .tickRangeLabel {
     font-size: 0.7rem;
-    top: 20px;
+    top: 30px;
     left: 50%; /* Keep this for centering basis */
     width: 80%;
     white-space: normal;
     text-align: center;
     /* Modify the transform to add the 5px shift */
-    transform: translateX(calc(-50% + 5px));
+    transform: translateX(calc(-50% + 25px));
     color: black;
   }
 
