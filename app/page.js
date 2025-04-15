@@ -163,11 +163,20 @@ export default function Page() {
         scales: {
           x: {
             type: 'linear',
-            title: { display: true, text: "True Effect Size (d)" },
+            // --- CHANGE 1: Updated title text ---
+            title: { display: true, text: "True Effect Size" }, // Removed (d)
             min: -2,
             max: 2,
             ticks: {
-              stepSize: 0.5
+              stepSize: 0.5,
+              // --- CHANGE 2: Added callback for tick formatting ---
+              callback: function(value, index, ticks) {
+                // Check if the value is numeric before formatting
+                if (typeof value === 'number') {
+                   return value === 0 ? '0' : value + 'σ';
+                }
+                return value; // Return original value if not numeric
+              }
             }
           },
           y: {
